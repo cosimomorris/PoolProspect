@@ -52,6 +52,35 @@
     ],
     "item": [
       {
+        "name": "System",
+        "item": [
+          {
+            "name": "Health Check",
+            "request": {
+              "method": "GET",
+              "url": {
+                "raw": "{{baseUrl}}/api/health",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "health"]
+              },
+              "description": "Check if the server is running and get timestamp"
+            }
+          },
+          {
+            "name": "Test Server",
+            "request": {
+              "method": "GET",
+              "url": {
+                "raw": "{{baseUrl}}/api/test",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "test"]
+              },
+              "description": "Basic server test endpoint"
+            }
+          }
+        ]
+      },
+      {
         "name": "Auth",
         "item": [
           {

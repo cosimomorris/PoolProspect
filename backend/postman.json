@@ -1,0 +1,335 @@
+{
+    "info": {
+      "_postman_id": "your-collection-id",
+      "name": "Pool Service API",
+      "description": "Complete API collection for Pool Service with automatic token handling",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+      {
+        "key": "baseUrl",
+        "value": "http://localhost:3001",
+        "type": "string"
+      },
+      {
+        "key": "authToken",
+        "value": "",
+        "type": "string"
+      }
+    ],
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": {
+          "exec": [
+            "const authToken = pm.collectionVariables.get('authToken');",
+            "if (!authToken && pm.request.url.path[2] !== 'login') {",
+            "    console.log('No auth token found, running login...');",
+            "    pm.sendRequest({",
+            "        url: pm.collectionVariables.get('baseUrl') + '/api/auth/login',",
+            "        method: 'POST',",
+            "        header: { 'Content-Type': 'application/json' },",
+            "        body: {",
+            "            mode: 'raw',",
+            "            raw: JSON.stringify({",
+            "                email: 'morriscosimo@gmail.com',",
+            "                password: 'your_password_here'",
+            "            })",
+            "        }",
+            "    }, function (err, res) {",
+            "        if (err || !res.json().token) {",
+            "            console.error('Login failed:', err || res.json());",
+            "            return;",
+            "        }",
+            "        const token = res.json().token;",
+            "        pm.collectionVariables.set('authToken', token);",
+            "        console.log('New token acquired');",
+            "    });",
+            "}"
+          ]
+        }
+      }
+    ],
+    "item": [
+      {
+        "name": "Auth",
+        "item": [
+          {
+            "name": "Register",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"password\": \"your_password\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/auth/register",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "auth", "register"]
+              },
+              "description": "Register a new user"
+            }
+          },
+          {
+            "name": "Login",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "if (pm.response.code === 200) {",
+                    "    const jsonData = pm.response.json();",
+                    "    pm.collectionVariables.set('authToken', jsonData.token);",
+                    "    console.log('Token updated');",
+                    "}"
+                  ]
+                }
+              }
+            ],
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"email\": \"morriscosimo@gmail.com\",\n    \"password\": \"your_password\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/auth/login",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "auth", "login"]
+              },
+              "description": "Login to get JWT token"
+            }
+          },
+          {
+            "name": "Get Current User",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{authToken}}"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/api/auth/me",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "auth", "me"]
+              },
+              "description": "Get current user details"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Leads",
+        "item": [
+          {
+            "name": "Get All Leads",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{authToken}}"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/api/leads",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "leads"]
+              },
+              "description": "Retrieve all leads"
+            }
+          },
+          {
+            "name": "Get Lead by ID",
+            "request": {
+              "method": "GET",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{authToken}}"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/api/leads/:id",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "leads", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "lead_id_here"
+                  }
+                ]
+              },
+              "description": "Get a specific lead by ID"
+            }
+          },
+          {
+            "name": "Create Single Lead",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{authToken}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"email\": \"newlead@example.com\",\n    \"emailInterval\": 10\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/leads",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "leads"]
+              },
+              "description": "Create a single lead"
+            }
+          },
+          {
+            "name": "Import Bulk Leads",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{authToken}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"leads\": [\"test@example.com\", \"another@example.com\"],\n    \"emailInterval\": 10\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/leads/bulk",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "leads", "bulk"]
+              },
+              "description": "Import multiple leads with email interval"
+            }
+          },
+          {
+            "name": "Update Lead",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{authToken}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"status\": \"paused\",\n    \"emailInterval\": 20\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/leads/:id",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "leads", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "lead_id_here"
+                  }
+                ]
+              },
+              "description": "Update a lead's details"
+            }
+          },
+          {
+            "name": "Delete Lead",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{authToken}}"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/api/leads/:id",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "leads", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": "lead_id_here"
+                  }
+                ]
+              },
+              "description": "Delete a lead"
+            }
+          },
+          {
+            "name": "Test Lead Email",
+            "request": {
+              "method": "POST",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{authToken}}"
+                }
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n    \"email\": \"morriscosimo@gmail.com\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/api/test-lead-email",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "test-lead-email"]
+              },
+              "description": "Create a test lead and send immediate email"
+            }
+          },
+          {
+            "name": "Delete All Leads",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{authToken}}"
+                }
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/api/leads",
+                "host": ["{{baseUrl}}"],
+                "path": ["api", "leads"]
+              },
+              "description": "Delete all leads from the database"
+            }
+          }
+        ]
+      }
+    ]
+  }

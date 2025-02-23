@@ -239,9 +239,10 @@ app.delete('/api/leads', authenticateToken, async (req, res) => {
 
 // Use the PORT provided by the hosting platform or fall back to 3001
 const PORT = process.env.PORT || 3001;
+const RENDER_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Test endpoint: http://localhost:${PORT}/api/test`);
-  console.log(`Health check: http://localhost:${PORT}/api/health`);
+  console.log(`Test endpoint: ${RENDER_URL}/api/test`);
+  console.log(`Health check: ${RENDER_URL}/api/health`);
 });
